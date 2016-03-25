@@ -39,7 +39,6 @@ Nicole Scherzinger:NicoleScherzy
 Kylie Minogue:KylieMinogue
 Shakira:ShAkiRA
 Robbie Williams:RobbieWilliams
-Jonas Brothers:Jonasbrothers
 Michelle Branch:michellebranch
 Mark Hoppus:markhoppus
 Victoria Beckham:victoriabeckham
@@ -50,3 +49,4 @@ John Mayer:JohnMayer
 Rob Thomas:thisisrobthomas
 Counting Crows:countingcrows
 Joshua Radin:Joshuaradin
+Nikki Sixx:NikkiSixx

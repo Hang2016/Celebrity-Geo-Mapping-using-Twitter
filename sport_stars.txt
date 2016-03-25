@@ -33,4 +33,5 @@ Natalie Gulbis:natalie_gulbis
 Michael Phelps:MichaelPhelps
 Nastia Liukin:NastiaLiukin
 Shawn Johnson:ShawnJohnson
-Shaun White:Shaun_White
+Kobe Bryant:kobebryant
+Rajon Rondo:RajonRondo

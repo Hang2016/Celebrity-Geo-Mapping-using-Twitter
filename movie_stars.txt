@@ -20,7 +20,6 @@ Channing Tatum:channingtatum
 William Shatner:WilliamShatner
 Eliza Dushku:ElizaDushku
 Jason Mewes:JayMewes
-Pamela Anderson:Pameladanderson
 Denise Richards:DENISE_RICHARDs
 Elizabeth Banks:ElizabethBanks
 Eva Longoria:EvaLongoria
@@ -64,6 +63,6 @@ Tom Felton:TomFelton
 Masiela Lusha:Masiela
 Rose McGowan:rosemcgowan
 Queen Latifah:IAMQueenLatifah
-Ari Graynor:AGraynor
 Levar Burton:levarburton
 Drew Carey:DrewFromTV
+Jaime King:Jaime_King

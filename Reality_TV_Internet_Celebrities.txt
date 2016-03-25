@@ -14,7 +14,6 @@ Kourtney Kardashian:KourtneyKardash
 Khloe Kardashian:khloekardashian
 Kim Kardashian:KimKardashian
 Kendra Wilkinson:KendraWilkinson
-Bridget Marquardt:BunnyBridget
 Holly Madison:hollymadison
 Paris Hilton:parishilton
 Nicole Richie:nicolerichie
@@ -26,7 +25,6 @@ Brody Jenner:brodyjenner
 Heidi Montag:heidimontag
 Spencer Pratt:spencerpratt
 Kat Von D:thekatvond
-Tori Spelling:torianddean
 Wee Man:IamWeeman
 Chris Pontius:ChrisPontius
 Shanna Moakler:ShannaMoakler
