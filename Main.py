@@ -31,7 +31,6 @@ musicians_lists = ""
 sport_star_lists=""
 reality_tv_internet_lists=""
 idLists = ""
-testList=""
 
 class StdOutListener(tweepy.StreamListener):
 
@@ -77,7 +76,7 @@ class StdOutListener(tweepy.StreamListener):
                 name = getName(twitterID)
 
             if (name !='' and category !='' and tweetContent !='' and countryCode!='' and state!='' and city!='' and latitude !='' and longitude !='' and followersCount !='' and twitterID !='' and time!=''):
-                print 'true'
+                print 'Found One'
                 formatJson = {'name': name, 'twitterID': twitterID, 'followersCount': followersCount,
                           'category': category, 'tweetContent': tweetContent, 'time': time,
                           'countryCode': countryCode, 'state': state, 'city': city, 'latitude': latitude,
@@ -96,26 +95,17 @@ def getCategogy(id):
     global musicians_lists
     global sport_star_lists
     global reality_tv_internet_lists
-    global testList
 
     if id in commedian_lists:
-        print 'FOUND!'
         return 'Commedian'
     elif id in movie_star_lists:
-        print 'FOUND!'
         return 'Movie Star'
     elif id in musicians_lists:
-        print 'FOUND!'
         return 'Musician'
     elif id in sport_star_lists:
-        print 'FOUND!'
         return 'Sport Star'
     elif id in reality_tv_internet_lists:
-        print 'FOUND!'
         return 'TV&Internet Celebrity'
-    elif id in testList:
-        print 'FOUND!'
-        return 'test'
     else:
         return ''
 
@@ -125,7 +115,6 @@ def getName(id):
     file3 ='musicians.txt'
     file4 = 'movie_stars.txt'
     file5 = 'Reality_TV_Internet_Celebrities.txt'
-    file6 = 'test2.txt'
     global name
     name = getNameByID(file1,id)
     if name !=None:
@@ -140,9 +129,6 @@ def getName(id):
     if name !=None:
         return name
     name = getNameByID(file5,id)
-    if name !=None:
-        return name
-    name = getNameByID(file6,id)
     if name !=None:
         return name
 
@@ -192,7 +178,6 @@ def getCategory(name):
     else:
         return ''
 
-
 musicians_lists = getCelebrities('musicians.txt')
 movie_star_lists = getCelebrities('movie_stars.txt')
 reality_tv_internet_lists = getCelebrities('Reality_TV_Internet_Celebrities.txt')
@@ -205,9 +190,6 @@ getUserIDs('musicians_IDs.txt')
 getUserIDs('reality_tv_internet_celebrities_IDs.txt')
 getUserIDs('sport_stars_IDs.txt')
 
-
-celebrityLists =testList
-celebrityLists +=','
 celebrityLists += musicians_lists
 celebrityLists +=','
 celebrityLists +=movie_star_lists
