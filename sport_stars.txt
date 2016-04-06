@@ -33,5 +33,9 @@ Natalie Gulbis:natalie_gulbis
 Michael Phelps:MichaelPhelps
 Nastia Liukin:NastiaLiukin
 Shawn Johnson:ShawnJohnson
+<<<<<<< Updated upstream
 Kobe Bryant:kobebryant
 Rajon Rondo:RajonRondo
+=======
+Kobe Bryant:kobebryant
+>>>>>>> Stashed changes
