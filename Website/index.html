@@ -1,0 +1,1025 @@
+<!DOCTYPE HTML>
+<html id="html">
+
+<head>
+    <meta charset="ISO-8859-1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="icon" href="images/greenTwitterLogo.png" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/js/datetimepicker.js"></script>
+    <script src="//maps.google.com/maps/api/js?"></script>
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script id="twitter-wjs" type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+    <script src="assets/js/jquery.flot.min.js"></script>
+    <script src="assets/js/markerclusterer_compiled.js"></script>
+    <script src="assets/js/oms.min.js"></script>
+    <script src="assets/js/jquery.scrolly.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/skel.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+</head>
+<style>
+    #map {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        position: fixed;
+        overflow: hidden;
+    }
+    
+    #splash {
+        z-index: 3;
+    }
+
+</style>
+
+<body id="body">
+    <div id="page-wrapper">
+        <div id="splash">
+            <!-- Banner -->
+            <section id="banner">
+                <div class="content">
+                    <header class="major">
+                        <h2>Welcome</h2>
+                        <br />
+                        <h3>Kyle Wertz &amp; Chen Hang</h3>
+                        <h3>CS 4800 - 01</h3>
+                        <h3>Spring 2016</h3>
+                    </header>
+                    <span class="image">
+                    <img src="images/greenTwitterLogo.png" alt="Twitter Logo">
+                </span>
+                </div>
+                <a href="#one" class="goto-next scrolly" style="margin:0 0 0 -5em;">Next</a>
+            </section>
+            <!-- One -->
+            <section id="one" class="spotlight style3 bottom">
+                <span class="image fit main"><img src="images/redcarpet.jpeg" alt="" /></span>
+                <div class="content">
+                    <header>
+                        <h2>Talk a little bit about the project</h2>
+                        <p> I'm a paragraph
+                        </p>
+                    </header>
+                </div>
+                <a href="#one" onclick="hideSplash();" class="goto-next scrolly">Next</a>
+            </section>
+        </div>
+        <!-- Header -->
+        <header id="header">
+            <h1 id="logo">Project Name</h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="https://github.com/Hang2016/Celebrity-Geo-Mapping-using-Twitter" target="_blank">Source Code</a></li>
+                </ul>
+            </nav>
+        </header>
+        <div id="tweetAndFilterWrapper" style="visibility:hidden;">
+            <div id="filterPanel">
+                <div class="row" style="margin: .5em 0 0 0;">
+                    <ul class="actions fit small" style="margin: 0 0 .5em 0;">
+                        <li>
+                            <input type="text" name="name" id="txtUserName" value="" placeholder="User Name" />
+                        </li>
+                        <li>
+                            <input type="text" name="name" id="txtCity" value="" placeholder="City" />
+                        </li>
+                        <li>
+                            <input type="text" name="name" id="txtState" value="" placeholder="State" style="width: 95%" />
+                        </li>
+                    </ul>
+                </div>
+                <div class="row" style="margin: .5em 0 0 0;">
+                    <ul class="actions fit small" style="margin: 0 0 .5em 0;">
+                        <li>
+                            <input type="text" name="name" id="txtDistance" value="" placeholder="Distance (miles)" onkeypress="return isNumberKey(event)" />
+                        </li>
+                        <li>
+                            <input type="text" name="date" id="txtTimeFrom" placeholder="Time From">
+                        </li>
+                        <li>
+                            <input type="text" name="date" id="txtTimeTo" placeholder="Time To" style="width: 95%">
+                        </li>
+                    </ul>
+                </div>
+                <div class="row" style="margin: .5em 0 0 0;">
+                    <ul class="actions fit small" style="margin: 0 0 .5em 0;">
+                        <li>
+                            <input type="text" name="name" id="txtTweetText" value="" placeholder="Tweet Text" style="width: 147%" />
+                        </li>
+                        <li>
+                            <a href="#" class="button special fit small" style="width: 25%; float: right; margin: 0 2em 0 0;" onclick="getLatLongFromCityName();">Filter</a>
+                            <a href="#" class="button special fit small" style="width: 25%; float: right; margin: 0 1em 0 0;" onclick="clearFilters();">Clear</a>
+                        </li>
+                    </ul>
+                </div>
+                <div id="filterPanelButton" onclick="showHidePanelByButton('filterPanel'); showHidePanelByButton('tweetPanel');">Filters</div>
+                <div id="tweetPanel"></div>
+                <div id="distancePanel"></div>
+                <div id="errorMessagePanel"></div>
+            </div>
+        </div>
+        <div id="bottomPanelWrapper" style="visibility:hidden;">
+            <div id="bottomPanel">
+                <div id="legendPanel"></div>
+                <div id="deletedTweetsPanel">
+                    <input type="checkbox" id="chkShowDeletedTweets" name="chkShowDeletedTweets" checked>
+                    <label for="chkShowDeletedTweets" style="margin:0;">Show Deleted Tweets</label>
+                </div>
+                <div id="bottomPanelButton" onclick="showHidePanelByButton('bottomPanel');">Summary</div>
+                <div id="summaryPanel"> </div>
+            </div>
+        </div>
+    </div>
+    <div id="map" style="visibility: hidden;"></div>
+</body>
+<script>
+    var disabledColor = "4C4646";
+    var markerList = [];
+    var map = null;
+    var oms = null;
+    var lastTweet = null;
+    var summaryPanel = document.getElementById('summaryPanel');
+    var top10Cities = null;
+    var top10States = null;
+    var top10Celebrities = null;
+    var top10CelebritiesForMap = null;
+    var citiesPlotName = 'citiesLinePlot';
+    var statesPlotName = 'statesLinePlot';
+    var celebritiesPlotName = 'celebritiesLinePlot';
+    var markerClusterer = null;
+    var allTweets = null;
+    var currentTweets = null;
+
+    function loadData() {
+        if (allTweets == null) {
+            d3.json("data.json", function(error, json) {
+                if (error) return console.warn(error);
+                allTweets = json;
+                getLatLongFromCityName();
+            });
+        }
+    }
+
+    function hideSplash() {
+        document.getElementById('page-wrapper').style.paddingTop = "0";
+        var theHTML = document.getElementById('html');
+        theHTML.style.width = '100%';
+        theHTML.style.height = '100%';
+        theHTML.style.margin = '0';
+        theHTML.style.padding = '0';
+        theHTML.style.position = 'fixed';
+        theHTML.style.overflow = 'hidden';
+        var theBody = document.getElementById('body');
+        theBody.style.width = '100%';
+        theBody.style.height = '100%';
+        theBody.style.margin = '0';
+        theHTML.style.padding = '0';
+        theBody.style.position = 'fixed';
+        theBody.style.overflow = 'hidden';
+        document.getElementById("splash").innerHTML = '';
+        document.getElementById("tweetAndFilterWrapper").style.visibility = "visible";
+        document.getElementById('bottomPanelWrapper').style.visibility = "visible";
+        document.getElementById('map').style.visibility = "visible";
+        google.maps.event.trigger(map, 'resize');
+        createBottomPanel();
+    }
+
+    $(function() {
+        $('*[name=date]').appendDtpicker({
+            "autodateOnStart": false
+        });
+    });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function showHidePanelByButton(element) {
+        var panel = document.getElementById(element);
+        panel.classList.toggle("show");
+    }
+
+    function createBottomPanel() {
+        summaryPanel.innerHTML = '';
+        //createTop10Tables();
+        createTop10LinePlots();
+    }
+
+    function createTop10Tables() {
+        summaryPanel.innerHTML += getTop10TableData('City', top10Cities, 'padding-left: .5em; padding-right: .5em; float:left; width: 50%;');
+        summaryPanel.innerHTML += getTop10TableData('State', top10States, 'padding-right: .5em; width: 50%;') + '<br><br>';
+        summaryPanel.innerHTML += getTop10TableData('Celebrity', top10Celebrities, 'padding-right: .5em; width: 50%;');
+    }
+
+    function createTop10LinePlots() {
+        summaryPanel.innerHTML += getTop10LinePlotData('Most Tweets by City', citiesPlotName, top10Cities);
+        summaryPanel.innerHTML += getTop10LinePlotData('Most Tweets by State', statesPlotName, top10States);
+        summaryPanel.innerHTML += getTop10LinePlotData('Most Tweets by Celebrity', celebritiesPlotName, top10Celebrities);
+        renderLinePlots();
+    }
+
+    function getTop10TableData(column1Name, top10Dict, style) {
+        var data = '';
+        var dictSize = Object.keys(top10Dict).length;
+        if (dictSize) {
+            data = '<div class="table-wrapper" style="' + style + '"><table class="alt" style="margin: 0 0 0 0;"><thead><tr><th style="padding: .1em;">' + column1Name + '</th><th style="padding: .1em;">Number of Tweets</th></tr></thead><tbody>';
+            for (var theKey in top10Dict) {
+                data += '<tr><td style="padding: .1em;">' + theKey + '</td><td style="padding: .1em;">' + top10Dict[theKey].Count + '</td></tr>';
+            }
+            data += '</tbody></table></div>';
+        }
+        return data;
+    }
+
+    function getTop10LinePlotData(plotTitle, plotName, top10Dict) {
+        var data = '';
+        var dictSize = Object.keys(top10Dict).length;
+        if (dictSize) {
+            data = '<div id="graph-wrapper"><h2 style="margin: 0;">' + plotTitle + '</h2><div class="graph-info">';
+            data += getLinePlotLegendData(plotName, top10Dict, dictSize);
+            data += '</div><div id="' + plotName + 'GraphContainer" class="graph-container"><div id="' + plotName + '" class="graph-lines"></div><div class="yLabel">Number of Tweets</div></div><p style="margin: 0;">Time Frame</p></div>';
+        }
+        return data;
+    }
+
+    function getLinePlotLegendData(plotName, top10Dict, dictSize) {
+        var data = '';
+        var index = 0;
+        for (var theKey in top10Dict) {
+            var value = top10Dict[theKey];
+            var theColor = value.Color;
+            if (!value.Enabled) {
+                theColor = disabledColor;
+            }
+            data += '<a onclick="showHideLinePlotData(\'' + plotName + '\', \'' + theKey + '\');"' + getLinkButtonData(theColor, theKey)
+            if (index < dictSize - 1) {
+                data += "<br>";
+            }
+            index++;
+        }
+        return data;
+    }
+
+    function createMapLegend() {
+        var legendPanel = document.getElementById('legendPanel');
+        legendPanel.innerHTML = '';
+        var data = '';
+        var dictSize = Object.keys(top10CelebritiesForMap).length;
+        if (dictSize > 0) {
+            data = '<div id="legendPanelButton" onclick="/*showHidePanelByButton(\'legendPanel\');*/">Legend</div><div class="graph-info" style="padding-right: 10.2em; padding-top: .5em;">';
+            var index = 0;
+            for (var theKey in top10CelebritiesForMap) {
+                var value = top10CelebritiesForMap[theKey];
+                var theColor = value.Color;
+                if (!value.Enabled) {
+                    theColor = disabledColor;
+                }
+                data += '<a onclick="showHideLegendData(\'' + theKey.replace("'", "\\'") + '\');"' + getLinkButtonData(theColor, theKey)
+                if (index < dictSize - 1) {
+                    data += "<br>";
+                }
+                index++;
+            }
+        } else {
+            data += '<p>No data was found for the specified filters</p>';
+        }
+        legendPanel.innerHTML = data + '</div></div>';
+        if (dictSize > 0) {
+            legendPanel.style.height = (1.75 + (dictSize * 1.75)).toString() + "em";
+        } else {
+            legendPanel.style.height = "3.5em";
+        }
+    }
+
+    function getLinkButtonData(theColor, theKey) {
+        if (theKey.length > 25) {
+            theKey = theKey.substring(0, 22) + '...';
+        }
+        return ' style="border-bottom: 2px solid #' + theColor + ';"><span style ="padding-right: 1em; color: #' + theColor + '">&#x25A0</span>' + theKey + '</a>';
+    }
+
+    function showHideLegendData(theKey) {
+        var element = top10CelebritiesForMap[theKey];
+        element.Enabled = !element.Enabled;
+        var theMarkerList = [];
+        oms.unspiderfy();
+        for (var i = 0; i < markerList.length; i++) {
+            var marker = markerList[i];
+            if (marker.Color == element.Color) {
+                marker.visible = element.Enabled;
+            }
+            if (marker.visible) {
+                theMarkerList.push(marker);
+            }
+            if (lastTweet !== null && marker.tweetID == lastTweet.tweetID) {
+                marker.setIcon(getMarkerIcon(marker.visible, marker.Color));
+                lastTweet = marker;
+            }
+        }
+        createClusters(theMarkerList);
+        createMapLegend();
+    }
+
+    function createClusters(theMarkerList) {
+        if (markerClusterer) {
+            markerClusterer.clearMarkers();
+        }
+        markerClusterer = new MarkerClusterer(map, theMarkerList, {
+            styles: [{
+                url: 'images/pin.png',
+                height: 48,
+                width: 30,
+                anchor: [-18, 0],
+                textColor: '#ffffff',
+                textSize: 10,
+                iconAnchor: [15, 48]
+            }],
+            gridSize: 80,
+            maxZoom: 11
+        });
+    }
+
+    function clearFilters() {
+        var errorMessagePanel = document.getElementById('errorMessagePanel');
+        var txtUserName = document.getElementById('txtUserName');
+        var txtCity = document.getElementById('txtCity');
+        var txtState = document.getElementById('txtState');
+        var txtDistance = document.getElementById('txtDistance');
+        var txtTimeFrom = document.getElementById('txtTimeFrom');
+        var txtTimeTo = document.getElementById('txtTimeTo');
+        var txtTweetText = document.getElementById('txtTweetText');
+        txtUserName.value = "";
+        txtCity.value = "";
+        txtState.value = "";
+        txtDistance.value = "";
+        txtTimeFrom.value = "";
+        txtTimeTo.value = "";
+        txtTweetText.value = "";
+        errorMessagePanel.innerHTML = "";
+    }
+
+    function filterTweets(data, latLonArray, timeFrom, timeTo) {
+        var txtUserName = document.getElementById('txtUserName');
+        var txtCity = document.getElementById('txtCity');
+        var txtState = document.getElementById('txtState');
+        var txtDistance = document.getElementById('txtDistance');
+        var txtTimeFrom = document.getElementById('txtTimeFrom');
+        var txtTimeTo = document.getElementById('txtTimeTo');
+        var txtTweetText = document.getElementById('txtTweetText');
+
+        if (txtUserName.value != '') {
+            data = data.filter(function(tweet) {
+                return !doesntMatchFilter(tweet.UserName, txtUserName.value);
+            });
+        }
+        if (txtTweetText.value != '') {
+            data = data.filter(function(tweet) {
+                return !doesntMatchFilter(tweet.Tweet, txtTweetText.value);
+            });
+        }
+        if (timeFrom != '' || timeTo != '') {
+            data = data.filter(function(tweet) {
+                return !doesntMatchTimestamp(tweet.Timestamp, fromTime, toTime);
+            });
+        }
+        if (latLonArray != null) {
+            data = data.filter(function(tweet) {
+                return !doesntMatchDistance(latLonArray[0], latLonArray[1], tweet.Latitude, tweet.Longitude, txtDistance.value);
+            });
+        } else {
+            if (txtCity.value != '') {
+                data = data.filter(function(tweet) {
+                    return !doesntMatchFilter(tweet.City, txtCity.value);
+                });
+            }
+            if (txtState.value != '') {
+                data = data.filter(function(tweet) {
+                    return !doesntMatchFilter(tweet.State, txtState.value);
+                });
+            }
+        }
+        return data;
+    }
+
+    function getLatLongFromCityName() {
+        var distancePanel = document.getElementById('distancePanel');
+        var txtCity = document.getElementById('txtCity');
+        var txtState = document.getElementById('txtState');
+        var txtDistance = document.getElementById('txtDistance');
+        distancePanel.innerHTML = '';
+        if (txtDistance.value != '') {
+            if (txtCity.value == '' || txtState.value == '') {
+                setErrorMessage('Both City and State must be provided when filtering by distance.');
+            } else {
+                var geocoder = new google.maps.Geocoder();
+                var location = "";
+                if (txtCity.value != '' && txtState.value != '') {
+                    location = txtCity.value + ', ' + txtState.value + ', USA';
+                }
+                geocoder.geocode({
+                    'address': location
+                }, function(results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        if (results != undefined && results.length > 0) {
+                            var latLonArray = [results[0].geometry.location.lat(), results[0].geometry.location.lng()];
+                            distancePanel.innerHTML = '<distancePanel><p style="text-align: left; margin: 0;">Filtering for all tweets within a ' + txtDistance.value + ' mile<br>radius of ' + results[0].formatted_address + '<br>Latitude: ' + latLonArray[0].toString().substring(0, 9) + '<br>Longitude: ' + latLonArray[1].toString().substring(0, 9) + '</p></distancePanel>';
+                            renderTweets(latLonArray);
+                        }
+                    } else if (status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+                        setErrorMessage('Unable to find latitude and longitude coordinates of "' + location + '"\nEnsure that you have entered the correct City and State.');
+                    } else {
+                        setErrorMessage('Something went wrong: ' + status);
+                    }
+                });
+            }
+        } else {
+            renderTweets(null);
+        }
+    }
+
+    function doesntMatchDistance(lat1, lon1, lat2, lon2, inputDistance) {
+        var radlat1 = Math.PI * lat1 / 180;
+        var radlat2 = Math.PI * lat2 / 180;
+        var theta = lon1 - lon2;
+        var radtheta = Math.PI * theta / 180;
+        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        dist = Math.acos(dist);
+        dist = dist * 180 / Math.PI;
+        dist = dist * 60 * 1.1515;
+        return dist > inputDistance;
+    }
+
+    function doesntMatchTimestamp(timestamp, fromTime, toTime) {
+        var result = true;
+        if (!isNaN(fromTime) && !isNaN(toTime)) {
+            result = fromTime <= timestamp && timestamp <= toTime;
+        } else if (!isNaN(fromTime)) {
+            result = fromTime <= timestamp;
+        } else if (!isNaN(toTime)) {
+            result = timestamp <= toTime;
+        }
+        return !result;
+    }
+
+    function doesntMatchFilter(attributeValue, inputValue) {
+        return attributeValue.toLowerCase().indexOf(inputValue.toLowerCase()) == -1;
+    }
+
+    function initializeMap() {
+        map = new google.maps.Map(d3.select("#map").node(), {
+            zoom: 4,
+            center: new google.maps.LatLng(42.877742, -97.380979),
+            mapTypeId: google.maps.MapTypeId.TERRAIN,
+            mapTypeControlOptions: {
+                position: google.maps.ControlPosition.LEFT_CENTER
+            }
+        });
+        oms = new OverlappingMarkerSpiderfier(map);
+    }
+
+    function setTop10Cities(data, colorDict) {
+        data.sort(function(a, b) {
+            var aValue = a.City + ', ' + a.State;
+            var bValue = b.City + ', ' + b.State;
+            if (aValue < bValue)
+                return -1;
+            else if (aValue > bValue)
+                return 1;
+            else
+                return 0;
+        });
+        var prevCity;
+        var cityGroupings = [];
+        for (var i = 0; i < data.length; i++) {
+            var element = data[i];
+            var city = element.City + ', ' + element.State;
+            if (city !== prevCity) {
+                cityGroupings.push({
+                    City: element.City,
+                    State: element.State,
+                    Count: 1
+                });
+            } else {
+                cityGroupings[cityGroupings.length - 1].Count++;
+            }
+            prevCity = city;
+        }
+        cityGroupings.sort(function(b, a) {
+            if (a.Count < b.Count)
+                return -1;
+            else if (a.Count > b.Count)
+                return 1;
+            else
+                return 0;
+        });
+
+        top10Cities = {};
+        for (var i = 0; i < cityGroupings.length; i++) {
+            var element = cityGroupings[i];
+            if (element.City == '') {
+                continue;
+            }
+            if (Object.keys(top10Cities).length < 10) {
+                top10Cities[element.City + ', ' + element.State] = {
+                    Count: element.Count,
+                    Enabled: true,
+                    Color: colorDict[Object.keys(top10Cities).length]
+                };
+            } else {
+                break;
+            }
+        }
+    }
+
+    function setTop10States(data, colorDict) {
+        data.sort(function(a, b) {
+            if (a.State < b.State)
+                return -1;
+            else if (a.State > b.State)
+                return 1;
+            else
+                return 0;
+        });
+        var stateGroupings = [];
+        var prevState;
+        for (var i = 0; i < data.length; i++) {
+            var element = data[i];
+            if (element.State !== prevState) {
+                stateGroupings.push({
+                    State: element.State,
+                    Count: 1
+                });
+            } else {
+                stateGroupings[stateGroupings.length - 1].Count++;
+            }
+            prevState = element.State;
+        }
+        stateGroupings.sort(function(b, a) {
+            if (a.Count < b.Count)
+                return -1;
+            else if (a.Count > b.Count)
+                return 1;
+            else
+                return 0;
+        });
+
+        top10States = {};
+        for (var i = 0; i < stateGroupings.length; i++) {
+            var element = stateGroupings[i];
+            if (element.State == '') {
+                continue;
+            }
+            if (Object.keys(top10States).length < 10) {
+                top10States[element.State] = {
+                    Count: element.Count,
+                    Enabled: true,
+                    Color: colorDict[Object.keys(top10States).length]
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    function setTop10Celebrities(data, colorDict) {
+        data.sort(function(a, b) {
+            if (a.UserName < b.UserName)
+                return -1;
+            else if (a.UserName > b.UserName)
+                return 1;
+            else
+                return 0;
+        });
+        var celebrityGroupings = [];
+        var prevCelebrity;
+        for (var i = 0; i < data.length; i++) {
+            var element = data[i];
+            if (element.UserName !== prevCelebrity) {
+                celebrityGroupings.push({
+                    UserName: element.UserName,
+                    Count: 1,
+                    Color: ""
+                });
+            } else {
+                celebrityGroupings[celebrityGroupings.length - 1].Count++;
+            }
+            prevCelebrity = element.UserName;
+        }
+        celebrityGroupings.sort(function(b, a) {
+            if (a.Count < b.Count)
+                return -1;
+            else if (a.Count > b.Count)
+                return 1;
+            else
+                return 0;
+        });
+
+        top10Celebrities = {};
+        for (var i = 0; i < celebrityGroupings.length; i++) {
+            var element = celebrityGroupings[i];
+            if (Object.keys(top10Celebrities).length < 10) {
+                top10Celebrities[element.UserName] = {
+                    Count: element.Count,
+                    Enabled: true,
+                    Color: colorDict[Object.keys(top10Celebrities).length]
+                };
+            } else {
+                if (Object.keys(top10Celebrities).length < 11) {
+                    top10Celebrities["Other"] = {
+                        Count: element.Count,
+                        Enabled: true,
+                        Color: colorDict[Object.keys(top10Celebrities).length]
+                    };
+                } else {
+                    top10Celebrities["Other"].Count += element.Count;
+                }
+            }
+        }
+
+        //clone the associative array, that way when the user disables a celebrity on the 
+        //map legend it doesn't affect the legend on the line plot and vice versa
+        top10CelebritiesForMap = $.extend(true, {}, top10Celebrities);
+    }
+
+    function setErrorMessage(errorMessage) {
+        var errorMessagePanel = document.getElementById('errorMessagePanel');
+        if (errorMessage != '') {
+            errorMessagePanel.innerHTML = '<errorMessagePanel><p>' + errorMessage + '</p></errorMessagePanel>';
+            new Audio('assets/sounds/alert.wav').play();
+        } else {
+            errorMessagePanel.innerHTML = "";
+        }
+    }
+
+    function renderTweets(latLonArray) {
+        var tweetPanel = document.getElementById('tweetPanel');
+        fromTime = Date.parse(txtTimeFrom.value);
+        toTime = Date.parse(txtTimeTo.value);
+        var errorMessage = '';
+        if (isNaN(fromTime) && txtTimeFrom.value != '' && isNaN(toTime) && txtTimeTo.value != '') {
+            errorMessage = 'Unable to parse the time "from" and "to" fields';
+        } else if (isNaN(fromTime) && txtTimeFrom.value != '') {
+            errorMessage = 'Unable to parse the time "from" field';
+        } else if (isNaN(toTime) && txtTimeTo.value != '') {
+            errorMessage = 'Unable to parse the time "to" field';
+        }
+        setErrorMessage(errorMessage);
+        if (errorMessage == '') {
+            markerList = [];
+            oms.unspiderfy();
+            oms.clearMarkers();
+            tweetPanel.innerHTML = "";
+            lastTweet = null;
+            currentTweets = allTweets.slice(0);
+            currentTweets = filterTweets(currentTweets, latLonArray);
+            var colorDict = {
+                //red
+                0: "e4211c",
+                //blue
+                1: "377eb8",
+                //green
+                2: "4daf4a",
+                //purple
+                3: "984ea3",
+                //yellow
+                4: "fffb32",
+                //cyan
+                5: "00FFFF",
+                //brown
+                6: "a65629",
+                //pink
+                7: "f781bf",
+                //white
+                8: "ffffff",
+                //magenta
+                9: "ff00ff",
+                //orange
+                10: "ff7f00"
+            };
+            setTop10Cities(currentTweets, colorDict);
+            setTop10States(currentTweets, colorDict);
+            setTop10Celebrities(currentTweets, colorDict);
+            createMapLegend();
+            createBottomPanel();
+
+            for (var i = 0, len = currentTweets.length; i < len; ++i) {
+                var theColor = "";
+                var tweet = currentTweets[i];
+                //if (tweet.UserName == "Other") continue;
+                var celebrityElement = top10CelebritiesForMap[tweet.UserName];
+                if (celebrityElement != undefined) {
+                    theColor = celebrityElement.Color;
+                } else {
+                    theColor = top10CelebritiesForMap["Other"].Color;
+                }
+                var marker = new google.maps.Marker({
+                    tweetID: tweet.id,
+                    UserName: tweet.UserName,
+                    Timestamp: tweet.Timestamp,
+                    Tweet: tweet.Tweet,
+                    City: tweet.City,
+                    State: tweet.State,
+                    Color: theColor,
+                    visible: true,
+                    icon: getMarkerIcon(false, theColor),
+                    position: new google.maps.LatLng(tweet.Latitude, tweet.Longitude),
+                });
+                marker.addListener('click', function() {
+                    //this refers to the marker
+                    if (lastTweet == null || lastTweet.tweetID != this.TweetID) {
+                        if (lastTweet !== null) {
+                            lastTweet.setIcon(getMarkerIcon(false, lastTweet.Color));
+                        }
+                        this.setIcon(getMarkerIcon(true, this.Color));
+                        lastTweet = this;
+                        tweetPanel.innerHTML = "";
+                        twttr.widgets.createTweet(lastTweet.tweetID, tweetPanel, {
+                            cards: "hidden",
+                            theme: "dark"
+                        }).then(function(e) {
+                            if (e === undefined) {
+                                SetDeletedTweet();
+                            }
+                        });
+                    }
+                });
+                markerList.push(marker);
+                oms.addMarker(marker);
+            }
+            createClusters(markerList);
+        }
+    }
+
+    function getMarkerIcon(isSelected, theColor) {
+        var result = "";
+        if (isSelected) {
+            result = "https://chart.googleapis.com/chart?chst=d_map_xpin_letter&chld=pin_star|+|" + theColor + "|000000|FFF51E";
+        } else {
+            result = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + theColor;
+        }
+        return result;
+    }
+
+    function showHideLinePlotData(plotName, theKey) {
+        var element = null;
+        if (plotName === citiesPlotName) {
+            element = top10Cities[theKey];
+        } else if (plotName === statesPlotName) {
+            element = top10States[theKey];
+        } else if (plotName === celebritiesPlotName) {
+            element = top10Celebrities[theKey];
+        }
+        element.Enabled = !element.Enabled;
+        createBottomPanel();
+    }
+
+    function renderLinePlots() {
+        if (top10Cities != null && top10States != null && top10Celebrities != null) {
+            var tweetsArray = currentTweets.slice(0);
+            tweetsArray.sort(function(a, b) {
+                var aValue = a.Timestamp;
+                var bValue = b.Timestamp;
+                if (aValue < bValue)
+                    return -1;
+                else if (aValue > bValue)
+                    return 1;
+                else
+                    return 0;
+            });
+            configureLinePlotTools(tweetsArray, citiesPlotName, top10Cities);
+            configureLinePlotTools(tweetsArray, statesPlotName, top10States);
+            configureLinePlotTools(tweetsArray, celebritiesPlotName, top10Celebrities);
+        }
+    }
+
+    function getLinePlotData(groupedDict, labelValue, color) {
+        var data = [];
+        for (var timestamp in groupedDict) {
+            data.push([timestamp, groupedDict[timestamp]]);
+        }
+        var linePlotData = {
+            data: data,
+            color: '#' + color,
+            points: {
+                radius: 4,
+                fillColor: '#' + color
+            },
+            LabelValue: labelValue
+        };
+        return linePlotData;
+    }
+
+    function roundToNearestDay(timestamp) {
+        var date = new Date(parseInt(timestamp));
+        date.setUTCDate(date.getUTCDate() + Math.round(date.getUTCHours() / 24));
+        date.setUTCHours(0);
+        date.setUTCMinutes(0);
+        date.setUTCSeconds(0);
+        date.setUTCMilliseconds(0);
+        return date.getTime();
+    }
+
+    function configureLinePlotTools(tweetsArray, plotName, top10Dict) {
+        if (tweetsArray.length > 0) {
+            if (Object.keys(top10Dict).length > 0) {
+                var graphContainer = document.getElementById(plotName + 'GraphContainer');
+                if ($(window).width() < 800) {
+                    graphContainer.style.width = "85%";
+                } else {
+                    graphContainer.style.width = "92%";
+                }
+                var graphData = [];
+                for (var theKey in top10Dict) {
+                    var element = top10Dict[theKey];
+                    if (element.Enabled) {
+                        var groupedDict = {};
+                        var prevTimestamp;
+                        for (var i = 0; i < tweetsArray.length; i++) {
+                            var tweetData = tweetsArray[i];
+                            if ((plotName == citiesPlotName && theKey == (tweetData.City + ', ' + tweetData.State)) ||
+                                (plotName == statesPlotName && theKey == tweetData.State) ||
+                                (plotName == celebritiesPlotName && theKey == tweetData.UserName)) {
+                                var timestamp = roundToNearestDay(tweetData.Timestamp);
+                                if (timestamp !== prevTimestamp) {
+                                    prevTimestamp = timestamp;
+                                    groupedDict[prevTimestamp] = 1;
+                                } else {
+                                    groupedDict[prevTimestamp]++;
+                                }
+                            }
+                        }
+                        graphData.push(getLinePlotData(groupedDict, theKey, element.Color));
+                    }
+                }
+
+                graphContainer.style.height = "18em";
+                $.plot($('#' + plotName), graphData, {
+                    series: {
+                        points: {
+                            show: true,
+                            radius: 5
+                        },
+                        lines: {
+                            show: true
+                        },
+                        shadowSize: 0
+                    },
+                    grid: {
+                        color: '#fff',
+                        borderColor: 'transparent',
+                        borderWidth: 20,
+                        hoverable: true
+                    },
+                    xaxis: {
+                        mode: "time",
+                        minTickSize: [1, "day"],
+                    },
+                    yaxis: {
+                        tickDecimals: 0
+                    }
+                });
+
+                var previousPoint = [];
+                $('#' + plotName).bind('plothover', function(event, pos, item) {
+                    if (item) {
+                        if (previousPoint[0] != item.datapoint[0] || previousPoint[1] != item.datapoint[1]) {
+                            previousPoint = item.datapoint;
+                            $('#tooltip').remove();
+                            var label = item.series.LabelValue;
+                            if (plotName === celebritiesPlotName) {
+                                label = 'from ' + label;
+                            } else {
+                                label = 'in ' + label;
+                            }
+                            $('<div id="tooltip">' + item.datapoint[1] + ' tweets ' + label + '</div>').css({
+                                top: item.pageY - 16,
+                                left: item.pageX + 20
+                            }).appendTo('body').fadeIn();
+                        }
+                    } else {
+                        $('#tooltip').remove();
+                        previousPoint = [];
+                    }
+                });
+            }
+        }
+    }
+
+    function SetDeletedTweet() {
+        var tweetPanel = document.getElementById('tweetPanel');
+        var chkShowDeletedTweets = document.getElementById('chkShowDeletedTweets');
+        if (!chkShowDeletedTweets.checked) {
+            tweetPanel.innerHTML = '<tweetDeletedPanel><p>Tweet removed by user.</p></tweetDeletedPanel>';
+            tweetPanel.children[0].style.marginTop = "10px";
+        } else {
+            var tweetID = lastTweet.tweetID;
+            var UserName = lastTweet.UserName;
+            var Tweet = lastTweet.Tweet;
+            var City = lastTweet.City;
+            var State = lastTweet.State;
+            var timeString1 = getTimeString(lastTweet.Timestamp, true);
+            var timeString2 = getTimeString(lastTweet.Timestamp, false);
+            var tagsToReplace = [];
+            var replacementStrings = [];
+            var indexOfString = 0;
+            var indexOfWord = 0;
+            while (Tweet.toLowerCase().indexOf("http".toLowerCase(), indexOfString) > -1) {
+                indexOfString = Tweet.toLowerCase().indexOf("http".toLowerCase(), indexOfString);
+                var spaceIndex = Tweet.indexOf(" ", indexOfString);
+                spaceIndex = spaceIndex > -1 ? spaceIndex : Tweet.length;
+                var webLink = Tweet.substring(indexOfString, spaceIndex);
+                indexOfString = spaceIndex;
+                tagsToReplace.push(webLink);
+                replacementStrings.push('<a href="' + webLink + '" rel="nofollow" dir="ltr" data-expanded-url="' + webLink + '" class="link customisable" target="_blank" title="' + webLink + '" data-scribe="element:url"><span class="u-hiddenVisually">http://</span>' + webLink + '<span class="u-hiddenVisually">&nbsp;</span></a>');
+            }
+            Tweet = replaceTags(Tweet, tagsToReplace, replacementStrings);
+
+            tagsToReplace = [];
+            replacementStrings = [];
+            indexOfString = 0;
+            indexOfWord = 0;
+            while (Tweet.toLowerCase().indexOf("#".toLowerCase(), indexOfString) > -1) {
+                indexOfString = Tweet.toLowerCase().indexOf("#".toLowerCase(), indexOfString) + 1;
+                var spaceIndex = Tweet.indexOf(" ", indexOfString);
+                spaceIndex = spaceIndex > -1 ? spaceIndex : Tweet.length;
+                var hashTag = Tweet.substring(indexOfString, spaceIndex);
+                indexOfString = spaceIndex;
+                tagsToReplace.push('#' + hashTag);
+                replacementStrings.push('<a href="https://twitter.com/hashtag/' + hashTag + '?src=hash" data-query-source="hashtag_click" class="PrettyLink hashtag customisable" dir="ltr" rel="tag" data-scribe="element:hashtag"><span class="PrettyLink-prefix">#</span><span class="PrettyLink-value">' + hashTag + '</span></a>');
+            }
+            Tweet = replaceTags(Tweet, tagsToReplace, replacementStrings);
+
+            tweetPanel.innerHTML = '<iframe id="TweetPanelIFrame" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-tweet twitter-tweet-rendered" style="position: static; visibility: visible; display: block; width: 500px; height: 182.8px; padding: 0px; border: none; max-width: 100%; min-width: 220px; margin-top: 10px;" data-tweet-id="' + tweetID + '" title="Twitter Tweet"></iframe>';
+
+            var IFrameContents = '<html class="SandboxRoot undefined env-wide"><head><style type="text/css">.SandboxRoot {display: none;}</style><base target="_blank"><link type="text/css" rel="stylesheet" href="http://platform.twitter.com/css/tweet.47ab5d19e8ed22531abcf4f86f3ae53a.dark.ltr.css"></head>';
+            IFrameContents += '<body><div class="EmbeddedTweet js-clickToOpenTarget" data-iframe-title="Twitter Tweet" data-scribe="page:tweet" lang="en" data-twitter-event-id="1"><div class="EmbeddedTweet-tweet"><blockquote class="Tweet h-entry js-tweetIdInfo subject';
+            IFrameContents += 'expanded is-deciderHtmlWhitespace" data-scribe="section:subject"><div class="Tweet-header u-cf"><div class="Tweet-brand u-floatRight"><span class="u-hiddenInNarrowEnv"><a class=';
+            IFrameContents += '"FollowButton follow-button profile" data-scribe="component:followbutton" href="https://twitter.com/' + UserName + '" role="button" title="Follow ' + UserName + ' on Twitter"><span class="FollowButton-bird"><div class="Icon Icon--twitter" role="presentation"></div>';
+            IFrameContents += '</span>Follow</a></span></div><div class="TweetAuthor" data-scribe="component:author"><a class="TweetAuthor-link Identity u-linkBlend" data-scribe="element:user_link" href="https://twitter.com/' + UserName + '">';
+            IFrameContents += '<span class="TweetAuthor-name Identity-name customisable-highlight" data-scribe="element:name">@' + UserName + '</span></a></div></div><div class="Tweet-body e-entry-content" data-scribe="component:tweet"><p class="Tweet-text e-entry-title" lang="en" dir="ltr">' + Tweet + '</p>';
+            IFrameContents += '<div class="Tweet-metadata dateline"><time class="dt-updated" pubdate="" title="Time posted: ' + timeString1 + ' (UTC)">' + timeString2 + '</time> &#183; ' + (City != '' ? City + ', ' : '') + State + ', United States</div></div></blockquote></div></div></body>';
+
+            var TweetPanelIFrame = document.getElementById('TweetPanelIFrame');
+            TweetPanelIFrame.src = "data:text/html;charset=utf-8," + encodeURI(IFrameContents);
+        }
+        //marker.setMap(null);
+        //markerList.splice(markerList.indexOf(marker), 1);
+    }
+
+    function getTimeString(timeStamp, isTimestamp1) {
+        var date = new Date(parseInt(timeStamp));
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var month = months[date.getMonth()];
+        var year = date.getFullYear();
+
+        if (isTimestamp1) {
+            var day = "0" + date.getUTCDate();
+            day = day.substr(-2);
+            var hour = "0" + date.getUTCHours();
+            hour = hour.substr(-2);
+            var min = "0" + date.getUTCMinutes();
+            min = min.substr(-2);
+            var sec = "0" + date.getUTCSeconds();
+            sec = sec.substr(-2);
+            var time = day + ' ' + month + ' ' + year + ', ' + hour + ':' + min + ':' + sec;
+        } else {
+            var day = "0" + date.getDate();
+            day = day.substr(-2);
+            var hour = date.getHours();
+            var min = "0" + date.getMinutes();
+            min = min.substr(-2);
+            var time = (hour > 12 ? hour - 12 : hour) + ':' + min + ' ' + (hour < 12 ? 'AM' : 'PM') + ' - ' + day + ' ' + month + ' ' + year;
+        }
+        return time;
+    }
+
+    function replaceTags(Tweet, tagsToReplace, replacementStrings) {
+        for (var i = 0; i < replacementStrings.length; i++) {
+            Tweet = Tweet.replace(tagsToReplace[i], replacementStrings[i]);
+        }
+        return Tweet;
+    }
+
+    loadData();
+    initializeMap();
+
+    var resizeId;
+    $(window).resize(function() {
+        clearTimeout(resizeId);
+        resizeId = setTimeout(doneResizing, 500);
+    });
+
+    function doneResizing() {
+        renderLinePlots();
+    }
+    //hideSplash();
+
+</script>

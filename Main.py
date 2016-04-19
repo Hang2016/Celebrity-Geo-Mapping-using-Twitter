@@ -90,7 +90,8 @@ class StdOutListener(tweepy.StreamListener):
 
         try:
             if decoded['place'] != None:
-                twitterID = decoded['user']['screen_name']
+                userName = decoded['user']['screen_name']
+                twitterID = decoded['id_str']
                 tweetContent = decoded['text']
                 fulllocation = str(decoded['place']['full_name'])
                 city = fulllocation.split(",")[0]
@@ -100,8 +101,8 @@ class StdOutListener(tweepy.StreamListener):
                 longitude = decoded['place']['bounding_box']['coordinates'][0][0][1]
                 followersCount = decoded['user']['followers_count']
                 time = decoded['user']['created_at']
-                category = getCategogy(twitterID)
-                name = getName(twitterID)
+                category = getCategogy(userName)
+                name = getName(userName)
 
             if (name !='' and category !='' and tweetContent !='' and countryCode!='' and state!='' and city!='' and latitude !='' and longitude !='' and followersCount !='' and twitterID !='' and time!=''):
                 print 'Found One'
@@ -120,8 +121,9 @@ class StdOutListener(tweepy.StreamListener):
         try:
             if decoded['place'] != None:
                 followersCount = decoded['user']['followers_count']
-                if followersCount >= 200000:
-                    twitterID = decoded['user']['screen_name']
+                if followersCount >= 2:
+                    userName = decoded['user']['screen_name']
+                    twitterID = decoded['id_str']
                    # print twitterID
                     name = decoded['user']['name']
                    # print name
@@ -136,8 +138,8 @@ class StdOutListener(tweepy.StreamListener):
                     longitude = decoded['place']['bounding_box']['coordinates'][0][0][1]
 
                     time = decoded['created_at']
-                    category = getCategogy(twitterID)
-                #name = getName(twitterID name
+                    category = getCategogy(userName)
+                #name = getName(userName name
                 #print decoded
                     if name !='' and tweetContent !='' and countryCode!='' and state!='' and city!='' and latitude !='' and longitude !='' and followersCount !='' and twitterID !='' and time!='':
                         print "Found One"
@@ -242,12 +244,12 @@ def getCelebrities(filename):
 >>>>>>> Stashed changes
             if list == "":
                 list+="\'"
-                list+=str(twitterID)
+                list+=str(userName)
                 list+="\'"
             else:
                 list+=','
                 list+="\'"
-                list+=str(twitterID)
+                list+=str(userName)
                 list+="\'"
     return list.replace('\n','')
 <<<<<<< Updated upstream
