@@ -46,7 +46,7 @@
                     <header class="major">
                         <h2>Welcome</h2>
                         <br />
-                        <h3>Kyle Wertz &amp; Chen Hang</h3>
+                        <h3>Chen Hang &amp; Kyle Wertz</h3>
                         <h3>CS 4800 - 01</h3>
                         <h3>Spring 2016</h3>
                     </header>
@@ -58,12 +58,101 @@
             </section>
             <!-- One -->
             <section id="one" class="spotlight style3 bottom">
-                <span class="image fit main"><img src="images/redcarpet.jpeg" alt="" /></span>
+                <span class="image fit main"><img src="images/twitterWallpaper.png" alt="" /></span>
                 <div class="content">
                     <header>
-                        <h2>Talk a little bit about the project</h2>
-                        <p> I'm a paragraph
-                        </p>
+                        <h2>Objective</h2>
+                        <b>
+                            <ul>
+                            <li>Plot tweets onto an interactive map of the world</li>
+                                <li>Provide interactive line plots that shows the trend of tweets</li>
+                                <ul>
+                                    <li>Most Tweets (top 10) by:</li>
+                                <ul>
+                                    <li>City</li>
+                                <li>State</li>
+                                <li>User</li>                                
+                                    </ul>
+                                </ul>
+                                <li>Give the user the ability to filter tweets by:</li>
+                                <ul>
+                                    <li>User Name</li>
+                                <li>City</li>
+                                <li>State</li>
+                                <li>Distance (in miles)</li>
+                                <li>Time Posted</li>
+                                <li>Tweet Text</li>
+                                 </ul>
+                                <li>Give the user the ability to view the contents of a tweet</li>                                
+                            </ul>
+                        </b>
+                    </header>
+                </div>
+                <br>
+                <a href="#two" class="goto-next scrolly">Next</a>
+            </section>
+            <!-- Two -->
+            <section id="two" class="spotlight style3 bottom">
+                <span class="image fit main"><img src="images/lineplot.png" alt="" /></span>
+                <div class="content">
+                    <header>
+                        <h2>Analysis</h2>
+                        <ul>
+                            <b><li>What cities have the most tweets?</li></b>
+                            <b><li>What states have the most tweets?</li></b>
+                            <b><li>What users have the most tweets?</li></b>
+                        </ul>
+                    </header>
+                </div>
+                <a href="#three" class="goto-next scrolly">Next</a>
+            </section>
+            <!-- Three -->
+            <section id="three" class="spotlight style3 bottom">
+                <span class="image fit main"><img src="images/lightbulbs.png" alt="" /></span>
+                <div class="content">
+                    <header>
+                        <h2>Application</h2>
+                        <b>
+                            <ul>                                
+                                <li>Hashtag Trends</li>                            
+                                    <li>Music</li>
+                                    <li>TV</li>
+                                    <li>Technology</li>
+                                    <li>News</li>
+                                    <li>Politics</li>
+                                    <li>Sports</li>   
+                            </ul>
+                            </b>
+                    </header>
+                </div>
+                <a href="#four" class="goto-next scrolly">Next</a>
+            </section>
+            <!-- Four -->
+            <section id="four" class="spotlight style3 bottom">
+                <span class="image fit main"><img src="images/USWallpaper.png" alt="" /></span>
+                <div class="content">
+                    <header>
+                        <h2>Technologies Used</h2>
+                        <b>
+                            <ul>
+                            <li>Data Collection</li>
+                        <ul>
+                            <li>Twitter Streaming API</li>
+                            <li>Python</li>
+                            <li>Tweepy</li>
+                        </ul>
+                            <li>Map Visual</li>
+                            <ul>
+                                <li>Google Maps API</li>
+                                <li>Marker Clustering Library</li>
+                                <li>Overlapping Marker Spiderfier Library</li>
+                            </ul>
+                            <li>Line Plots</li>
+                                 <ul>
+                                <li>JFlot Library</li>
+                            </ul>
+                        </ul>
+                        </b>
                     </header>
                 </div>
                 <a href="#one" onclick="hideSplash();" class="goto-next scrolly">Next</a>
@@ -71,7 +160,7 @@
         </div>
         <!-- Header -->
         <header id="header">
-            <h1 id="logo">Project Name</h1>
+            <h1 id="logo">Twitter Geo Mapping</h1>
             <nav id="nav">
                 <ul>
                     <li><a href="https://github.com/Hang2016/Celebrity-Geo-Mapping-using-Twitter" target="_blank">Source Code</a></li>
@@ -146,21 +235,24 @@
     var summaryPanel = document.getElementById('summaryPanel');
     var top10Cities = null;
     var top10States = null;
-    var top10Celebrities = null;
-    var top10CelebritiesForMap = null;
+    var top10Users = null;
+    var top10UsersForMap = null;
     var citiesPlotName = 'citiesLinePlot';
     var statesPlotName = 'statesLinePlot';
-    var celebritiesPlotName = 'celebritiesLinePlot';
+    var UsersPlotName = 'UsersLinePlot';
     var markerClusterer = null;
     var allTweets = null;
     var currentTweets = null;
 
     function loadData() {
         if (allTweets == null) {
-            d3.json("data.json", function(error, json) {
-                if (error) return console.warn(error);
-                allTweets = json;
-                getLatLongFromCityName();
+            d3.tsv("data.tsv", function(error, theData) {
+                setTimeout(function() {
+                    allTweets = theData;
+                    var txtTweetText = document.getElementById('txtTweetText');
+                    txtTweetText.value = "#Jobs";
+                    getLatLongFromCityName();
+                }, 0);
             });
         }
     }
@@ -216,13 +308,13 @@
     function createTop10Tables() {
         summaryPanel.innerHTML += getTop10TableData('City', top10Cities, 'padding-left: .5em; padding-right: .5em; float:left; width: 50%;');
         summaryPanel.innerHTML += getTop10TableData('State', top10States, 'padding-right: .5em; width: 50%;') + '<br><br>';
-        summaryPanel.innerHTML += getTop10TableData('Celebrity', top10Celebrities, 'padding-right: .5em; width: 50%;');
+        summaryPanel.innerHTML += getTop10TableData('User', top10Users, 'padding-right: .5em; width: 50%;');
     }
 
     function createTop10LinePlots() {
         summaryPanel.innerHTML += getTop10LinePlotData('Most Tweets by City', citiesPlotName, top10Cities);
         summaryPanel.innerHTML += getTop10LinePlotData('Most Tweets by State', statesPlotName, top10States);
-        summaryPanel.innerHTML += getTop10LinePlotData('Most Tweets by Celebrity', celebritiesPlotName, top10Celebrities);
+        summaryPanel.innerHTML += getTop10LinePlotData('Most Tweets by User', UsersPlotName, top10Users);
         renderLinePlots();
     }
 
@@ -272,12 +364,12 @@
         var legendPanel = document.getElementById('legendPanel');
         legendPanel.innerHTML = '';
         var data = '';
-        var dictSize = Object.keys(top10CelebritiesForMap).length;
+        var dictSize = Object.keys(top10UsersForMap).length;
         if (dictSize > 0) {
             data = '<div id="legendPanelButton" onclick="/*showHidePanelByButton(\'legendPanel\');*/">Legend</div><div class="graph-info" style="padding-right: 10.2em; padding-top: .5em;">';
             var index = 0;
-            for (var theKey in top10CelebritiesForMap) {
-                var value = top10CelebritiesForMap[theKey];
+            for (var theKey in top10UsersForMap) {
+                var value = top10UsersForMap[theKey];
                 var theColor = value.Color;
                 if (!value.Enabled) {
                     theColor = disabledColor;
@@ -307,7 +399,7 @@
     }
 
     function showHideLegendData(theKey) {
-        var element = top10CelebritiesForMap[theKey];
+        var element = top10UsersForMap[theKey];
         element.Enabled = !element.Enabled;
         var theMarkerList = [];
         oms.unspiderfy();
@@ -589,7 +681,7 @@
         }
     }
 
-    function setTop10Celebrities(data, colorDict) {
+    function setTop10Users(data, colorDict) {
         data.sort(function(a, b) {
             if (a.UserName < b.UserName)
                 return -1;
@@ -598,22 +690,22 @@
             else
                 return 0;
         });
-        var celebrityGroupings = [];
-        var prevCelebrity;
+        var UserGroupings = [];
+        var prevUser;
         for (var i = 0; i < data.length; i++) {
             var element = data[i];
-            if (element.UserName !== prevCelebrity) {
-                celebrityGroupings.push({
+            if (element.UserName !== prevUser) {
+                UserGroupings.push({
                     UserName: element.UserName,
                     Count: 1,
                     Color: ""
                 });
             } else {
-                celebrityGroupings[celebrityGroupings.length - 1].Count++;
+                UserGroupings[UserGroupings.length - 1].Count++;
             }
-            prevCelebrity = element.UserName;
+            prevUser = element.UserName;
         }
-        celebrityGroupings.sort(function(b, a) {
+        UserGroupings.sort(function(b, a) {
             if (a.Count < b.Count)
                 return -1;
             else if (a.Count > b.Count)
@@ -622,31 +714,32 @@
                 return 0;
         });
 
-        top10Celebrities = {};
-        for (var i = 0; i < celebrityGroupings.length; i++) {
-            var element = celebrityGroupings[i];
-            if (Object.keys(top10Celebrities).length < 10) {
-                top10Celebrities[element.UserName] = {
+        top10UsersForMap = {};
+        for (var i = 0; i < UserGroupings.length; i++) {
+            var element = UserGroupings[i];
+            if (Object.keys(top10UsersForMap).length < 10) {
+                top10UsersForMap[element.UserName] = {
                     Count: element.Count,
                     Enabled: true,
-                    Color: colorDict[Object.keys(top10Celebrities).length]
+                    Color: colorDict[Object.keys(top10UsersForMap).length]
                 };
             } else {
-                if (Object.keys(top10Celebrities).length < 11) {
-                    top10Celebrities["Other"] = {
+                if (Object.keys(top10UsersForMap).length < 11) {
+                    top10UsersForMap["Other"] = {
                         Count: element.Count,
                         Enabled: true,
-                        Color: colorDict[Object.keys(top10Celebrities).length]
+                        Color: colorDict[Object.keys(top10UsersForMap).length]
                     };
                 } else {
-                    top10Celebrities["Other"].Count += element.Count;
+                    top10UsersForMap["Other"].Count += element.Count;
                 }
             }
         }
 
-        //clone the associative array, that way when the user disables a celebrity on the 
+        //clone the associative array, that way when the user disables a User on the 
         //map legend it doesn't affect the legend on the line plot and vice versa
-        top10CelebritiesForMap = $.extend(true, {}, top10Celebrities);
+        top10Users = $.extend(true, {}, top10UsersForMap);
+        delete top10Users["Other"];
     }
 
     function setErrorMessage(errorMessage) {
@@ -706,7 +799,7 @@
             };
             setTop10Cities(currentTweets, colorDict);
             setTop10States(currentTweets, colorDict);
-            setTop10Celebrities(currentTweets, colorDict);
+            setTop10Users(currentTweets, colorDict);
             createMapLegend();
             createBottomPanel();
 
@@ -714,11 +807,11 @@
                 var theColor = "";
                 var tweet = currentTweets[i];
                 //if (tweet.UserName == "Other") continue;
-                var celebrityElement = top10CelebritiesForMap[tweet.UserName];
-                if (celebrityElement != undefined) {
-                    theColor = celebrityElement.Color;
+                var UserElement = top10UsersForMap[tweet.UserName];
+                if (UserElement != undefined) {
+                    theColor = UserElement.Color;
                 } else {
-                    theColor = top10CelebritiesForMap["Other"].Color;
+                    theColor = top10UsersForMap["Other"].Color;
                 }
                 var marker = new google.maps.Marker({
                     tweetID: tweet.id,
@@ -734,7 +827,7 @@
                 });
                 marker.addListener('click', function() {
                     //this refers to the marker
-                    if (lastTweet == null || lastTweet.tweetID != this.TweetID) {
+                    if (lastTweet == null || lastTweet.tweetID != this.tweetID) {
                         if (lastTweet !== null) {
                             lastTweet.setIcon(getMarkerIcon(false, lastTweet.Color));
                         }
@@ -743,7 +836,8 @@
                         tweetPanel.innerHTML = "";
                         twttr.widgets.createTweet(lastTweet.tweetID, tweetPanel, {
                             cards: "hidden",
-                            theme: "dark"
+                            theme: "dark",
+                            conversation: "none",
                         }).then(function(e) {
                             if (e === undefined) {
                                 SetDeletedTweet();
@@ -774,15 +868,15 @@
             element = top10Cities[theKey];
         } else if (plotName === statesPlotName) {
             element = top10States[theKey];
-        } else if (plotName === celebritiesPlotName) {
-            element = top10Celebrities[theKey];
+        } else if (plotName === UsersPlotName) {
+            element = top10Users[theKey];
         }
         element.Enabled = !element.Enabled;
         createBottomPanel();
     }
 
     function renderLinePlots() {
-        if (top10Cities != null && top10States != null && top10Celebrities != null) {
+        if (top10Cities != null && top10States != null && top10Users != null) {
             var tweetsArray = currentTweets.slice(0);
             tweetsArray.sort(function(a, b) {
                 var aValue = a.Timestamp;
@@ -796,7 +890,7 @@
             });
             configureLinePlotTools(tweetsArray, citiesPlotName, top10Cities);
             configureLinePlotTools(tweetsArray, statesPlotName, top10States);
-            configureLinePlotTools(tweetsArray, celebritiesPlotName, top10Celebrities);
+            configureLinePlotTools(tweetsArray, UsersPlotName, top10Users);
         }
     }
 
@@ -846,7 +940,7 @@
                             var tweetData = tweetsArray[i];
                             if ((plotName == citiesPlotName && theKey == (tweetData.City + ', ' + tweetData.State)) ||
                                 (plotName == statesPlotName && theKey == tweetData.State) ||
-                                (plotName == celebritiesPlotName && theKey == tweetData.UserName)) {
+                                (plotName == UsersPlotName && theKey == tweetData.UserName)) {
                                 var timestamp = roundToNearestDay(tweetData.Timestamp);
                                 if (timestamp !== prevTimestamp) {
                                     prevTimestamp = timestamp;
@@ -894,7 +988,7 @@
                             previousPoint = item.datapoint;
                             $('#tooltip').remove();
                             var label = item.series.LabelValue;
-                            if (plotName === celebritiesPlotName) {
+                            if (plotName === UsersPlotName) {
                                 label = 'from ' + label;
                             } else {
                                 label = 'in ' + label;

@@ -2436,8 +2436,8 @@ ol li {
 
 ul {
     list-style: disc;
-    margin: 0 0 2em 0;
-    padding-left: 1em;
+    margin: 0 0 0 0;
+    padding-left: 2em;
 }
 
 ul li {
